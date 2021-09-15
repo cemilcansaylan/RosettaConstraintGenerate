@@ -15,3 +15,7 @@ pip install biopython
 pip install numpy
 pip install absl-py
 ```
+#### Usage:
+```
+python3 constraint_from_structure.py --structure demo.pdb
+```
