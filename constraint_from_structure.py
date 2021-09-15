@@ -78,7 +78,7 @@ def PrintConstraint(structure, filename):
 if __name__ == __main__:
     
     parser = PDBParser()
-    structure = parser.get_structure("demo","demo_1-100.pdb")
+    structure = parser.get_structure("demo","demo.pdb")
     
     PrintConstraint(structure, "constarints_all.cst")
 
