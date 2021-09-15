@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+"""
+Created on Wed Sep 15 22:27:56 2021
+
+@author: cemil can saylan
+"""
+
 from Bio.PDB import *
 import numpy
 
