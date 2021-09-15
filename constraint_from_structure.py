@@ -6,6 +6,8 @@ Created on Wed Sep 15 22:27:56 2021
 
 @author: cemil can saylan
 """
+#!/usr/bin/env python
+# coding: utf-8
 
 from Bio.PDB import *
 import numpy
@@ -13,21 +15,27 @@ import numpy
 from absl import app
 from absl import flags
 
-flags.DEFINE_string('input', None, 'PDB Structure')
+flags.DEFINE_string('structure', None, 'PDB Structure')
 flags.DEFINE_string('output', 'constraint.cst', 'constraint file name')
-flags.DEFINE_integer('distance', 20, 'Nearest CA for given CA')
 
 FLAGS = flags.FLAGS
+flags.mark_flag_as_required("structure")
 
-def AtomPairNearest(structure, distance=20):
+RADIUS=20
+
+def AtomPairNearest(structure):
     """ 
     Only for CA 
     """
+    
+    res_list = Selection.unfold_entities(structure, "R")
     atoms  = Selection.unfold_entities(structure, 'A')
+    
     ns = NeighborSearch(atoms)
     Nearest_Atom = []
+    
     for res in res_list:
-        near = ns.search(res["CA"].coord, distance)
+        near = ns.search(res["CA"].coord, RADIUS)
         for a in near:
             if a.id == "CA":
                 diff = res["CA"].coord - a.coord
@@ -55,39 +63,41 @@ def Dih_Angle(structure):
                              r.internal_coord.get_angle("psi")])
     return dihedrals, angles
 
-def PrintConstraint(structure, filename):
+def PrintConstraint(pdb, filename):
     """     
     psi N-Cα-C-N
     phi C-N-Cα-C
     """
-    res_list = Selection.unfold_entities(structure, "R")
+    res_list = Selection.unfold_entities(pdb, "R")
     
-    Nearest_Atom = AtomPairNearest(structure)
-    Dihedrals, Angles = Dih_Angle(structure)
+    Nearest_Atom = AtomPairNearest(pdb)
+    Dihedrals, Angles = Dih_Angle(pdb)
     
     f = open(filename, "w")
     for res_num in range(1,len(res_list)+1):
         if res_num == 1:
-            f.write(f"Dihedral N {res_num} CA {res_num} C {res_num} N {res_num+1} LINEAR_PENALTY {dihedrals[res_num-1][1]*0.01745329252} 0 0 10.0\n")
-            f.write(f"Angle N {res_num} CA {res_num} C {res_num} LINEAR_PENALTY {angles[res_num-1]} 0 0 10.0\n")
+            f.write(f"Dihedral N {res_num} CA {res_num} C {res_num} N {res_num+1} LINEAR_PENALTY {Dihedrals[res_num-1][1]*0.01745329252} 0 0 10.0\n")
+            f.write(f"Angle N {res_num} CA {res_num} C {res_num} LINEAR_PENALTY {Angles[res_num-1]} 0 0 10.0\n")
         elif res_num == len(res_list):
-            f.write(f"Dihedral C {res_num-1} N {res_num} CA {res_num} C {res_num} LINEAR_PENALTY {dihedrals[res_num-1][0]*0.01745329252} 0 0 10.0\n")
-            f.write(f"Angle N {res_num} CA {res_num} C {res_num} LINEAR_PENALTY {angles[res_num-1]} 0 0 10.0\n")
+            f.write(f"Dihedral C {res_num-1} N {res_num} CA {res_num} C {res_num} LINEAR_PENALTY {Dihedrals[res_num-1][0]*0.01745329252} 0 0 10.0\n")
+            f.write(f"Angle N {res_num} CA {res_num} C {res_num} LINEAR_PENALTY {Angles[res_num-1]} 0 0 10.0\n")
         else:
-            f.write(f"Dihedral N {res_num} CA {res_num} C {res_num} N {res_num+1} LINEAR_PENALTY {dihedrals[res_num-1][1]*0.01745329252} 0 0 10.0\n")
-            f.write(f"Dihedral C {res_num-1} N {res_num} CA {res_num} C {res_num} LINEAR_PENALTY {dihedrals[res_num-1][0]*0.01745329252} 0 0 10.0\n")
-            f.write(f"Angle N {res_num} CA {res_num} C {res_num} LINEAR_PENALTY {angles[res_num-1]} 0 0 10.0\n")
+            f.write(f"Dihedral N {res_num} CA {res_num} C {res_num} N {res_num+1} LINEAR_PENALTY {Dihedrals[res_num-1][1]*0.01745329252} 0 0 10.0\n")
+            f.write(f"Dihedral C {res_num-1} N {res_num} CA {res_num} C {res_num} LINEAR_PENALTY {Dihedrals[res_num-1][0]*0.01745329252} 0 0 10.0\n")
+            f.write(f"Angle N {res_num} CA {res_num} C {res_num} LINEAR_PENALTY {Angles[res_num-1]} 0 0 10.0\n")
 
             
     for atompair in Nearest_Atom:
         f.write(f"AtomPair CA {atompair[1]} CA {atompair[3]} LINEAR_PENALTY {atompair[4]} 0 0 10.0\n")
     
     f.close()
-    
-if __name__ == '__main__':
-    
+  
+def main(argv):
     parser = PDBParser()
-    structure = parser.get_structure("demo","demo.pdb")
+    pdb_file = parser.get_structure("demo", FLAGS.structure)
     
-    PrintConstraint(structure, "constarints_all.cst")
+    PrintConstraint(pdb_file, FLAGS.output)
+ 
+if __name__ == '__main__':
+    app.run(main)
 
