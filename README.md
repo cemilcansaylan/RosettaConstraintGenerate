@@ -2,10 +2,12 @@
 
 Generate Rosetta constraints (Angle (N,Ca,C), Dihedral (phi, psi), AtomPair (between Ca) from given structure
 
-Required packages:\n
+Required packages:
+```
 Biopython
 numpy
 absl
+```
 
 #### Install Required Packages:
 ```bash
