@@ -75,7 +75,7 @@ def PrintConstraint(structure, filename):
     
     f.close()
     
-if __name__ == __main__:
+if __name__ == '__main__':
     
     parser = PDBParser()
     structure = parser.get_structure("demo","demo.pdb")
