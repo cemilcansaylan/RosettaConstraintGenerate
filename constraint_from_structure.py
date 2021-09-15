@@ -10,6 +10,15 @@ Created on Wed Sep 15 22:27:56 2021
 from Bio.PDB import *
 import numpy
 
+from absl import app
+from absl import flags
+
+flags.DEFINE_string('input', None, 'PDB Structure')
+flags.DEFINE_string('output', 'constraint.cst', 'constraint file name')
+flags.DEFINE_integer('distance', 20, 'Nearest CA for given CA')
+
+FLAGS = flags.FLAGS
+
 def AtomPairNearest(structure, distance=20):
     """ 
     Only for CA 
