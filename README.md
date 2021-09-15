@@ -1,3 +1,3 @@
 # RosettaConstraintGenerate
 
-Generate Rosetta constraints from given structure
+Generate Rosetta constraints (Angle (N,Ca,C), Dihedral (phi, psi), AtomPair (between Ca) from given structure
