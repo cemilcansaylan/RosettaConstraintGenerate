@@ -6,8 +6,6 @@ Created on Wed Sep 15 22:27:56 2021
 
 @author: cemil can saylan
 """
-#!/usr/bin/env python
-# coding: utf-8
 
 from Bio.PDB import *
 from Bio import SeqIO
