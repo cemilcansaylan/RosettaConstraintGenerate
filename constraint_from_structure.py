@@ -10,6 +10,7 @@ Created on Wed Sep 15 22:27:56 2021
 # coding: utf-8
 
 from Bio.PDB import *
+from Bio import SeqIO
 import numpy
 
 from absl import app
@@ -17,11 +18,18 @@ from absl import flags
 
 flags.DEFINE_string('structure', None, 'PDB Structure')
 flags.DEFINE_string('output', 'constraint.cst', 'constraint file name')
+flags.DEFINE_boolean('printfasta', false, 'Print sequence of structure')
 
 FLAGS = flags.FLAGS
 flags.mark_flag_as_required("structure")
 
 RADIUS=20
+
+def PrintFasta(structure):
+    f = open("input.fasta", "w")
+    for record in SeqIO.parse(structure, "pdb-atom"):
+        f.write(str(record.seq))
+    f.close()
 
 def AtomPairNearest(structure):
     """ 
@@ -97,6 +105,9 @@ def main(argv):
     pdb_file = parser.get_structure("demo", FLAGS.structure)
     
     PrintConstraint(pdb_file, FLAGS.output)
+    
+    if FLAGS.printfasta:
+        PrintFasta(FLAGS.structure)
  
 if __name__ == '__main__':
     app.run(main)
