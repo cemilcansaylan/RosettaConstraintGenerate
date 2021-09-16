@@ -17,5 +17,5 @@ pip install absl-py
 ```
 #### Usage:
 ```
-python3 constraint_from_structure.py --structure demo.pdb
+python3 constraint_from_structure.py --structure demo.pdb --distance 20
 ```
