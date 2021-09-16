@@ -16,7 +16,7 @@ from absl import flags
 
 flags.DEFINE_string('structure', None, 'PDB Structure')
 flags.DEFINE_string('output', 'constraint.cst', 'constraint file name')
-flags.DEFINE_boolean('printfasta', false, 'Print sequence of structure')
+flags.DEFINE_boolean('printfasta', False, 'Print sequence of structure')
 
 FLAGS = flags.FLAGS
 flags.mark_flag_as_required("structure")
