@@ -3,7 +3,6 @@
 
 """
 Created on Wed Sep 15 22:27:56 2021
-
 @author: cemil can saylan
 """
 
@@ -17,11 +16,13 @@ from absl import flags
 flags.DEFINE_string('structure', None, 'PDB Structure')
 flags.DEFINE_string('output', 'constraint.cst', 'constraint file name')
 flags.DEFINE_boolean('printfasta', False, 'Print sequence of structure')
+flags.DEFINE_integer('distance', 20, 'Atompair radius')
 
 FLAGS = flags.FLAGS
 flags.mark_flag_as_required("structure")
+flags.mark_flag_as_required("distance")
 
-RADIUS=20
+
 
 def PrintFasta(structure):
     f = open("input.fasta", "w")
@@ -29,7 +30,7 @@ def PrintFasta(structure):
         f.write(str(record.seq))
     f.close()
 
-def AtomPairNearest(structure):
+def AtomPairNearest(structure, radius):
     """ 
     Only for CA 
     """
@@ -41,7 +42,7 @@ def AtomPairNearest(structure):
     Nearest_Atom = []
     
     for res in res_list:
-        near = ns.search(res["CA"].coord, RADIUS)
+        near = ns.search(res["CA"].coord, radius)
         for a in near:
             if a.id == "CA":
                 diff = res["CA"].coord - a.coord
@@ -69,14 +70,14 @@ def Dih_Angle(structure):
                              r.internal_coord.get_angle("psi")])
     return dihedrals, angles
 
-def PrintConstraint(pdb, filename):
+def PrintConstraint(pdb, filename, radius):
     """     
     psi N-Cα-C-N
     phi C-N-Cα-C
     """
     res_list = Selection.unfold_entities(pdb, "R")
     
-    Nearest_Atom = AtomPairNearest(pdb)
+    Nearest_Atom = AtomPairNearest(pdb, radius)
     Dihedrals, Angles = Dih_Angle(pdb)
     
     f = open(filename, "w")
@@ -102,11 +103,10 @@ def main(argv):
     parser = PDBParser()
     pdb_file = parser.get_structure("demo", FLAGS.structure)
     
-    PrintConstraint(pdb_file, FLAGS.output)
+    PrintConstraint(pdb_file, FLAGS.output, FLAGS.distance)
     
     if FLAGS.printfasta:
         PrintFasta(FLAGS.structure)
  
 if __name__ == '__main__':
     app.run(main)
-
